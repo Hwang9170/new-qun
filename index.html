@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>펀더멘탈 랩</title>
+  <meta name="description" content="재무제표로 기업의 수익성·성장성·안정성·현금흐름·밸류에이션을 분석하는 도구" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">F</span>
+        <span>펀더멘탈 랩</span>
+      </div>
+      <div class="topbar-controls">
+        <label class="sr-only" for="companySelect">기업 선택</label>
+        <select id="companySelect"></select>
+        <button class="btn" id="newCompanyBtn" type="button">+ 기업 추가</button>
+        <button class="btn btn-ghost icon-btn" id="themeBtn" type="button" aria-label="테마 전환" title="테마 전환">◐</button>
+      </div>
+    </div>
+    <nav class="tabs wrap" aria-label="분석 메뉴">
+      <a href="#overview" class="tab">개요</a>
+      <a href="#financials" class="tab">재무 추이</a>
+      <a href="#ratios" class="tab">비율 분석</a>
+      <a href="#health" class="tab">재무 건전성</a>
+      <a href="#valuation" class="tab">가치평가</a>
+      <a href="#compare" class="tab">기업 비교</a>
+      <a href="#editor" class="tab">데이터 입력</a>
+    </nav>
+  </header>
+
+  <main class="wrap">
+    <!-- 개요 -->
+    <section id="overview" class="section">
+      <div class="company-head">
+        <div>
+          <div class="company-title"><h1 id="companyName"></h1><span id="companyTicker" class="chip"></span><span id="companySector" class="chip chip-muted"></span><span id="sampleBadge" class="chip chip-note" hidden>가상 샘플 데이터</span></div>
+          <p id="companyDesc" class="muted"></p>
+        </div>
+        <div class="price-box">
+          <label for="priceInput" class="muted small">현재 주가 (원)</label>
+          <input id="priceInput" type="number" min="0" step="100" inputmode="numeric" />
+        </div>
+      </div>
+
+      <div class="grid-overview">
+        <div class="card score-card">
+          <div class="card-title">종합 펀더멘탈 점수</div>
+          <div class="score-main">
+            <div class="grade" id="gradeBadge">-</div>
+            <div>
+              <div class="score-num"><span id="totalScore">-</span><span class="muted"> / 100</span></div>
+              <div class="muted small">5개 영역 평균 · 최근 연도 기준</div>
+            </div>
+          </div>
+          <div id="categoryBars" class="cat-bars"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">핵심 지표</div>
+          <div id="kpiGrid" class="kpi-grid"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">분석 코멘트</div>
+        <ul id="insightList" class="insights"></ul>
+      </div>
+    </section>
+
+    <!-- 재무 추이 -->
+    <section id="financials" class="section">
+      <h2>재무 추이</h2>
+      <div class="chart-grid">
+        <div class="card"><div class="card-title">매출 · 영업이익 · 순이익 <span class="unit">억원</span></div><div id="chartIncome"></div></div>
+        <div class="card"><div class="card-title">이익률 <span class="unit">%</span></div><div id="chartMargins"></div></div>
+        <div class="card"><div class="card-title">자본 효율 (ROE · ROA · ROIC) <span class="unit">%</span></div><div id="chartReturns"></div></div>
+        <div class="card"><div class="card-title">현금흐름 <span class="unit">억원</span></div><div id="chartCash"></div></div>
+        <div class="card"><div class="card-title">재무 안정성 (부채비율 · 유동비율) <span class="unit">%</span></div><div id="chartStability"></div></div>
+        <div class="card"><div class="card-title">주당순이익 · 주당배당금 <span class="unit">원</span></div><div id="chartPerShare"></div></div>
+      </div>
+    </section>
+
+    <!-- 비율 분석 -->
+    <section id="ratios" class="section">
+      <h2>비율 분석</h2>
+      <div class="card table-card">
+        <div class="table-scroll"><table id="ratioTable" class="data-table"></table></div>
+      </div>
+    </section>
+
+    <!-- 재무 건전성 -->
+    <section id="health" class="section">
+      <h2>재무 건전성</h2>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Piotroski F-Score</div>
+          <p class="muted small">9개 항목으로 전년 대비 펀더멘탈 개선 여부를 평가합니다. 7점 이상 우량, 3점 이하 취약.</p>
+          <div id="fscore"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Altman Z-Score</div>
+          <p class="muted small">부도 위험 예측 모델(제조업 원형). 2.99 초과 안전, 1.81 미만 부실 위험.</p>
+          <div id="zscore"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 가치평가 -->
+    <section id="valuation" class="section">
+      <h2>가치평가</h2>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">DCF 적정주가 계산기</div>
+          <form id="dcfForm" class="dcf-form">
+            <label>기준 FCF
+              <select id="dcfBase">
+                <option value="latest">최근 연도 FCF</option>
+                <option value="avg3">최근 3년 평균 FCF</option>
+              </select>
+            </label>
+            <label>1단계 성장률 (%)<input id="dcfGrowth" type="number" step="0.5" value="8" /></label>
+            <label>성장 기간 (년)<input id="dcfYears" type="number" min="1" max="20" step="1" value="5" /></label>
+            <label>할인율 WACC (%)<input id="dcfDiscount" type="number" step="0.5" value="9" /></label>
+            <label>영구 성장률 (%)<input id="dcfTerminal" type="number" step="0.5" value="2" /></label>
+          </form>
+          <div id="dcfResult" class="dcf-result"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">적정가치 비교</div>
+          <div id="fairValues"></div>
+          <div class="card-title mt">민감도 분석 <span class="unit">주당 가치(원) · 행: 할인율 / 열: 영구성장률</span></div>
+          <div class="table-scroll"><table id="sensitivity" class="data-table sens-table"></table></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 기업 비교 -->
+    <section id="compare" class="section">
+      <h2>기업 비교</h2>
+      <div class="card table-card">
+        <div class="table-scroll"><table id="compareTable" class="data-table"></table></div>
+      </div>
+    </section>
+
+    <!-- 데이터 입력 -->
+    <section id="editor" class="section">
+      <h2>데이터 입력</h2>
+      <div class="card">
+        <div class="editor-meta">
+          <label>기업명<input id="edName" type="text" /></label>
+          <label>종목코드<input id="edTicker" type="text" /></label>
+          <label>업종<input id="edSector" type="text" /></label>
+          <label class="wide">설명<input id="edDesc" type="text" /></label>
+        </div>
+        <p class="muted small">금액 단위는 <b>억원</b>, 주식수는 <b>주</b>, 주당배당금은 <b>원</b>입니다. 사업보고서(DART)의 연결재무제표 값을 입력하세요. 스프레드시트에서 표를 복사해 첫 칸에 붙여넣을 수도 있습니다.</p>
+        <div class="table-scroll"><table id="editorTable" class="data-table editor-table"></table></div>
+        <div id="editorWarnings" class="warnings"></div>
+        <div class="editor-actions">
+          <button class="btn" id="addYearBtn" type="button">+ 연도 추가</button>
+          <button class="btn" id="removeYearBtn" type="button">− 첫 연도 삭제</button>
+          <span class="spacer"></span>
+          <button class="btn btn-ghost" id="exportBtn" type="button">JSON 내보내기</button>
+          <label class="btn btn-ghost file-btn">JSON 가져오기<input id="importInput" type="file" accept="application/json,.json" /></label>
+          <button class="btn btn-danger" id="deleteBtn" type="button">기업 삭제</button>
+          <button class="btn btn-primary" id="saveBtn" type="button">저장 후 분석</button>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer muted small">
+      샘플 기업은 모두 가상의 데이터입니다. 이 도구의 결과는 참고용이며 투자 권유가 아닙니다. 입력한 데이터는 이 브라우저에만 저장됩니다.
+    </footer>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/analysis.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
